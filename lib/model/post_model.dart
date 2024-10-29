@@ -14,4 +14,18 @@ class PostModel {
       body: json['body'],
     );
   }
+   Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'id': id,
+      'title': title,
+      'body': body,
+    };
+  }
+
+  // Optional: Override toString for better logging
+  @override
+  String toString() {
+    return 'PostModel(userId: $userId, id: $id, title: $title, body: $body)';
+  }
 }
