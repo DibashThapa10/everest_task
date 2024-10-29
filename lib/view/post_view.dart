@@ -7,7 +7,7 @@ class PostView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(postProvider);
+    final postAsyncValue = ref.watch(postProvider);
     final postController = ref.read(postControllerProvider);
     final h = MediaQuery.sizeOf(context).height;
     final w = MediaQuery.sizeOf(context).width;
@@ -22,95 +22,69 @@ class PostView extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
-      body: posts.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: w * 0.04, vertical: h * 0.01),
-                  child: Card(
-                    elevation: 2,
-                    child: ListTile(
-                      title: Text(
-                        post.title,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: s * 0.9, color: Colors.blue),
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: w * 0.02),
-                      subtitle: Text(
-                        post.body,
-                        style: TextStyle(fontSize: s * 0.7),
-                      ),
+      body: 
+      
+      postAsyncValue.when(
+        data: (posts) {
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: w * 0.04, vertical: h * 0.01),
+                child: Card(
+                  elevation: 2,
+                  child: ListTile(
+                    title: Text(
+                      post.title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: s * 0.9, color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: w * 0.02),
+                    subtitle: Text(
+                      post.body,
+                      style: TextStyle(fontSize: s * 0.7),
                     ),
                   ),
-                );
-              },
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) {
+          final errorMessage = error.toString();
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, color: Colors.red, size: 60),
+                const SizedBox(height: 10),
+                const Text(
+                  'Failed to load posts',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Retry button re-fetches posts
+                    ref.refresh(postProvider);
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
-      // postAsyncValue.when(
-      //   data: (posts) {
-      //     return ListView.builder(
-      //       itemCount: posts.length,
-      //       itemBuilder: (context, index) {
-      //         final post = posts[index];
-      //         return Padding(
-      //           padding: EdgeInsets.symmetric(
-      //               horizontal: w * 0.04, vertical: h * 0.01),
-      //           child: Card(
-      //             elevation: 2,
-      //             child: ListTile(
-      //               title: Text(
-      //                 post.title,
-      //                 textAlign: TextAlign.center,
-      //                 style: TextStyle(fontSize: s * 0.9, color: Colors.blue),
-      //               ),
-      //               contentPadding: EdgeInsets.symmetric(horizontal: w * 0.02),
-      //               subtitle: Text(
-      //                 post.body,
-      //                 style: TextStyle(fontSize: s * 0.7),
-      //               ),
-      //             ),
-      //           ),
-      //         );
-      //       },
-      //     );
-      //   },
-      //   loading: () => const Center(child: CircularProgressIndicator()),
-      //   error: (error, stack) {
-      //     final errorMessage = error.toString();
-      //     return Center(
-      //       child: Column(
-      //         mainAxisAlignment: MainAxisAlignment.center,
-      //         children: [
-      //           const Icon(Icons.error, color: Colors.red, size: 60),
-      //           const SizedBox(height: 10),
-      //           const Text(
-      //             'Failed to load posts',
-      //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      //           ),
-      //           Padding(
-      //             padding: const EdgeInsets.all(8.0),
-      //             child: Text(
-      //               errorMessage,
-      //               style: const TextStyle(color: Colors.grey),
-      //               textAlign: TextAlign.center,
-      //             ),
-      //           ),
-      //           ElevatedButton(
-      //             onPressed: () {
-      //               // Retry button re-fetches posts
-      //               ref.refresh(postProvider);
-      //             },
-      //             child: const Text('Retry'),
-      //           ),
-      //         ],
-      //       ),
-      //     );
-      //   },
-      // ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: () => postController.showAddPostDialog(context, ref),
