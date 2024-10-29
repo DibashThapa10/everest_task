@@ -18,6 +18,6 @@ This app depends on the following packages:
 
 This app uses the API to fetch posts and posts details from https://jsonplaceholder.typicode.com/
 
-Some screenshot of a Post App.
+Some screenshot of a Everest Task App.
 
 
