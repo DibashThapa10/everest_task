@@ -1,16 +1,23 @@
-# everest_task
+# Everest Task App
 
-A new Flutter project.
+A Flutter Everest Task App that uses the Riverpod state management library to view posts.
 
-## Getting Started
+# Features
 
-This project is a starting point for a Flutter application.
+• See the posts available on the server.<br />
+• Add new comment.<br />
+• Delete comment.
 
-A few resources to get you started if this is your first Flutter project:
+# Dependencies
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+This app depends on the following packages:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+• flutter_riverpod: ^2.6.1 • dio: ^5.7.0 • go_router: ^14.3.0 • shared_preferences: ^2.3.2
+
+# API
+
+This app uses the API to fetch posts and posts details from https://jsonplaceholder.typicode.com/
+
+Some screenshot of a Post App.
+
+

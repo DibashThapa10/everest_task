@@ -29,7 +29,6 @@ class PostView extends ConsumerWidget {
       },
     );
 
-    // If user confirmed, proceed with delete
     if (shouldDelete == true) {
       await ref.read(postProvider.notifier).deletePost(context, postId);
     }
