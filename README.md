@@ -5,8 +5,8 @@ A Flutter Everest Task App that uses the Riverpod state management library to vi
 # Features
 
 • See the posts available on the server.<br />
-• Add new comment.<br />
-• Delete comment.
+• Add new post.<br />
+• Delete post.
 
 # Dependencies
 
@@ -16,7 +16,7 @@ This app depends on the following packages:
 
 # API
 
-This app uses the API to fetch posts and posts details from https://jsonplaceholder.typicode.com/
+This app uses the API to fetch posts from https://jsonplaceholder.typicode.com/
 
 Some screenshot of a Everest Task App.
 
