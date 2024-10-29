@@ -192,6 +192,42 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
       );
     }
   }
+  Future<void> deletePost(BuildContext context, int postId) async {
+  try {
+    
+
+    
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String storedPosts = prefs.getString('stored_posts') ?? '[]';
+    final List<dynamic> postsList = json.decode(storedPosts);
+
+   
+    final updatedPostsList = postsList.where((post) {
+      return post['id'] != postId;
+    }).toList();
+
+    
+    await prefs.setString('stored_posts', json.encode(updatedPostsList));
+
+   
+    final updatedPosts = state.value?.where((post) => post.id != postId).toList();
+    state = AsyncValue.data(updatedPosts ?? []);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Post deleted successfully.'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error deleting post: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 }
 
 final postProvider =

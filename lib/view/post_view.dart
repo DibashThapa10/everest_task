@@ -5,6 +5,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PostView extends ConsumerWidget {
   const PostView({super.key});
 
+  Future<void> _showDeleteConfirmationDialog(
+      BuildContext context, WidgetRef ref, int postId) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Center(child: Text("Delete Post")),
+          content: const Text("Are you sure you want to delete this post?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                "Yes",
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    // If user confirmed, proceed with delete
+    if (shouldDelete == true) {
+      await ref.read(postProvider.notifier).deletePost(context, postId);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postAsyncValue = ref.watch(postProvider);
@@ -22,9 +52,7 @@ class PostView extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
-      body: 
-      
-      postAsyncValue.when(
+      body: postAsyncValue.when(
         data: (posts) {
           return ListView.builder(
             itemCount: posts.length,
@@ -36,16 +64,63 @@ class PostView extends ConsumerWidget {
                 child: Card(
                   elevation: 2,
                   child: ListTile(
-                    title: Text(
-                      post.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: s * 0.9, color: Colors.blue),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            post.title,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: s * 0.9, color: Colors.blue),
+                          ),
+                        ),
+                        PopupMenuButton(itemBuilder: (context) {
+                          return [
+                            PopupMenuItem(
+                                onTap: () async {
+                                  // await ref
+                                  //     .read(postProvider.notifier)
+                                  //     .deletePost(context, post.id);
+                                  await _showDeleteConfirmationDialog(
+                                      context, ref, post.id);
+                                },
+                                child: const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Icon(
+                                      Icons.delete_forever,
+                                      color: Colors.red,
+                                      size: 18,
+                                    ),
+                                    Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ))
+                          ];
+                        })
+                      ],
                     ),
                     contentPadding: EdgeInsets.symmetric(horizontal: w * 0.02),
                     subtitle: Text(
                       post.body,
                       style: TextStyle(fontSize: s * 0.7),
                     ),
+
+                    // IconButton(
+                    //   icon: const Icon(Icons.delete, color: Colors.red),
+                    //   onPressed: () async {
+
+                    //     await ref
+                    //         .read(postProvider.notifier)
+                    //         .deletePost(context, post.id);
+                    //   },
+                    // ),
                   ),
                 ),
               );
@@ -75,7 +150,6 @@ class PostView extends ConsumerWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Retry button re-fetches posts
                     ref.refresh(postProvider);
                   },
                   child: const Text('Retry'),
