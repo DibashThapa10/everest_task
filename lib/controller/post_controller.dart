@@ -6,19 +6,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Provider for PostController, used to access post-related functionality in the app.
 final postControllerProvider = Provider((ref) => PostController());
 
 class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
   final dio = Dio();
+
+  // Initializes the controller in a loading state.
   PostController() : super(const AsyncValue.loading());
 
   Future<void> fetchPosts() async {
     final prefs = await SharedPreferences.getInstance();
+    // Retrieve stored posts from shared preferences, if available
     final String storedPosts = prefs.getString('stored_posts') ?? '[]';
     final List<dynamic> storedList = json.decode(storedPosts);
 
     if (storedList.isNotEmpty) {
       // state = storedList.map((post) => PostModel.fromJson(post)).toList();
+      // Set the state with posts from local storage if available
       state = AsyncValue.data(
           storedList.map((post) => PostModel.fromJson(post)).toList());
     } else {
@@ -34,12 +39,12 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
           await prefs.setString('stored_posts',
               json.encode(posts.map((post) => post.toJson()).toList()));
 
-          state = AsyncValue.data(posts);
+          state = AsyncValue.data(posts);  // Set the state with fetched posts
         } else {
           throw Exception('Failed to load posts: ${response.statusMessage}');
         }
       } on DioException catch (e) {
-        // Handle Dio-specific errors
+        // Handle errors specific to Dio, setting state with relevant error message
         switch (e.type) {
           case DioExceptionType.connectionTimeout:
             state = AsyncValue.error(
@@ -134,6 +139,7 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
                   final title = titleController.text;
                   final body = bodyController.text;
 
+                 // Create post after validation and update the state
                   await ref
                       .read(postProvider.notifier)
                       .createPost(context, title, body);
@@ -183,7 +189,7 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
         );
       }
     } on DioException catch (e) {
-      // Show error message in UI
+     // Show error if the post creation fails
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error creating post: ${e.message}'),
@@ -201,7 +207,7 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
     final String storedPosts = prefs.getString('stored_posts') ?? '[]';
     final List<dynamic> postsList = json.decode(storedPosts);
 
-   
+   // Filter out the post to be deleted
     final updatedPostsList = postsList.where((post) {
       return post['id'] != postId;
     }).toList();
@@ -209,7 +215,7 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
     
     await prefs.setString('stored_posts', json.encode(updatedPostsList));
 
-   
+   // Update the state without the deleted post
     final updatedPosts = state.value?.where((post) => post.id != postId).toList();
     state = AsyncValue.data(updatedPosts ?? []);
 
@@ -230,9 +236,14 @@ class PostController extends StateNotifier<AsyncValue<List<PostModel>>> {
 }
 }
 
+// Riverpod provider to manage the state of the posts
 final postProvider =
     StateNotifierProvider<PostController, AsyncValue<List<PostModel>>>((ref) {
   final controller = PostController();
-  controller.fetchPosts();
+  controller.fetchPosts(); // Trigger initial fetch of posts
   return controller;
 });
+
+//Notes:
+//PostController extends StateNotifier, which is responsible for managing the list of posts, handling asynchronous data (API calls), and setting the app state using AsyncValue.
+//AsyncValue can represent three states: loading, data, or error.

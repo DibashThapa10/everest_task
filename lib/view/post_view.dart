@@ -166,3 +166,10 @@ class PostView extends ConsumerWidget {
     );
   }
 }
+ 
+//Notes
+//PostView as a ConsumerWidget which allows it to read and respond to state changes using WidgetRef.
+//postProvider: Manages post data, including fetching, deleting, and error states, and updates the UI based on the current state.
+//postControllerProvider: Provides methods for additional actions like showing dialogs.
+//The PostView widget uses ConsumerWidget to listen for changes and display loading, data, or error states accordingly.
+//The ListView.builder populates posts dynamically, and Riverpod's ref helps manage state and trigger actions like deletion and refreshing.
